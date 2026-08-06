@@ -1,0 +1,1762 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KRAP - Kollekuuoner's Reviews on Absolute Products</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #111317;
+      --card-bg: #1c1e24;
+      --card-hover: #242730;
+      --border: #2b2e38;
+      --text-main: #ffffff;
+      --text-muted: #8e95a5;
+      --accent: #ffe600;
+      --input-bg: #181a20;
+      --nebula-1: rgba(255, 230, 0, 0.18);
+      --nebula-2: rgba(255, 100, 0, 0.15);
+    }
+
+
+    body[data-theme="dark"] {
+      --bg: #111317;
+      --card-bg: #1c1e24;
+      --card-hover: #242730;
+      --border: #2b2e38;
+      --text-main: #ffffff;
+      --text-muted: #8e95a5;
+      --input-bg: #181a20;
+    }
+
+
+    body[data-theme="amoled"] {
+      --bg: #000000;
+      --card-bg: #111111;
+      --card-hover: #1a1a1a;
+      --border: #222222;
+      --text-main: #ffffff;
+      --text-muted: #777777;
+      --input-bg: #0a0a0a;
+    }
+
+
+    body[data-theme="light"] {
+      --bg: #f3f4f6;
+      --card-bg: #ffffff;
+      --card-hover: #f9fafb;
+      --border: #e5e7eb;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --accent: #2563eb;
+      --input-bg: #ffffff;
+    }
+
+
+    body[data-theme="space"],
+    body[data-theme="abyss"] {
+      --bg: #070811;
+      --card-bg: rgba(20, 24, 43, 0.75);
+      --card-hover: rgba(29, 35, 61, 0.85);
+      --border: #283054;
+      --text-main: #f1f5f9;
+      --text-muted: #818cf8;
+      --input-bg: rgba(15, 18, 34, 0.8);
+      background-image: 
+        radial-gradient(circle at 20% 20%, var(--nebula-1) 0%, transparent 55%),
+        radial-gradient(circle at 80% 80%, var(--nebula-2) 0%, transparent 55%);
+      background-attachment: fixed;
+    }
+
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      padding: 40px 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      transition: background-color 0.4s ease, color 0.4s ease;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+
+    #spaceCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      display: none;
+    }
+
+
+    body[data-theme="space"] #spaceCanvas,
+    body[data-theme="abyss"] #spaceCanvas {
+      display: block;
+    }
+
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      position: relative;
+      z-index: 1;
+    }
+
+
+    .theme-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+
+    .theme-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s ease;
+    }
+
+
+    .theme-btn:hover {
+      color: var(--text-main);
+      border-color: var(--accent);
+    }
+
+
+    .theme-btn.active {
+      background: var(--accent);
+      color: #000000;
+      border-color: var(--accent);
+    }
+
+
+    body[data-theme="space"] .theme-btn.active,
+    body[data-theme="abyss"] .theme-btn.active {
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+
+    .special-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+
+    .special-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      z-index: 50;
+      min-width: 110px;
+      flex-direction: column;
+      backdrop-filter: blur(8px);
+    }
+
+
+    .special-dropdown:hover .special-menu,
+    .special-dropdown:focus-within .special-menu {
+      display: flex;
+    }
+
+
+    .special-item {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: left;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s ease;
+    }
+
+
+    .special-item:hover {
+      color: var(--text-main);
+      background: var(--card-hover);
+    }
+
+
+    .special-item.active {
+      color: var(--accent);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+
+    .palette-wrapper {
+      display: inline-flex;
+      align-items: center;
+      position: relative;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2px 4px 2px 2px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+
+    .palette-wrapper:hover {
+      border-color: var(--accent);
+    }
+
+
+    .random-color-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.2s ease;
+    }
+
+
+    .random-color-btn:hover {
+      transform: scale(1.05);
+    }
+
+
+    .palette-list {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 0;
+      opacity: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      transition: max-width 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, padding 0.3s ease;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+
+    .palette-wrapper:hover .palette-list {
+      max-width: 320px;
+      opacity: 1;
+      padding-left: 6px;
+      padding-right: 6px;
+    }
+
+
+    .color-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      flex-shrink: 0;
+      transform: rotate(-360deg) scale(0.3);
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease;
+    }
+
+
+    .palette-wrapper:hover .color-dot {
+      transform: rotate(0deg) scale(1);
+    }
+
+
+    .color-dot:hover {
+      transform: scale(1.25) !important;
+      border-color: #ffffff;
+    }
+
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+
+    .logo {
+      font-size: 48px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: var(--text-main);
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+
+    .subtitle {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+
+    .status-banner {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 16px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      backdrop-filter: blur(8px);
+      flex-wrap: wrap;
+    }
+
+
+    .status-badge {
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+
+    .status-badge::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+
+    body[data-theme="space"] .status-badge::before,
+    body[data-theme="abyss"] .status-badge::before {
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+
+    .categories-nav {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+
+    .home-nav-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+
+    .cat-btn {
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      color: var(--text-main);
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s ease;
+    }
+
+
+    .cat-btn:hover {
+      background: var(--card-hover);
+      border-color: var(--accent);
+    }
+
+
+    .cat-btn-home {
+      padding: 10px 28px;
+      font-size: 16px;
+    }
+
+
+    .cat-btn-sub {
+      padding: 4px 12px;
+      font-size: 11px;
+      border-width: 1px;
+      border-radius: 8px;
+      opacity: 0.8;
+      letter-spacing: 0.3px;
+    }
+
+
+    .cat-btn.active {
+      background: var(--accent);
+      color: #000000;
+      border-color: var(--accent);
+    }
+
+
+    body[data-theme="space"] .cat-btn.active,
+    body[data-theme="abyss"] .cat-btn.active {
+      box-shadow: 0 0 12px var(--accent);
+    }
+
+
+    .search-box {
+      margin-bottom: 16px;
+    }
+
+
+    .search-input {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+
+    .search-input:focus {
+      border-color: var(--accent);
+    }
+
+
+    .type-nav {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+
+
+    .type-btn {
+      flex: 1;
+      max-width: 140px;
+      text-align: center;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+
+
+    .type-btn:hover {
+      color: var(--text-main);
+      background: var(--card-hover);
+      border-color: var(--accent);
+    }
+
+
+    .type-btn.active {
+      background: var(--accent);
+      color: #000000;
+      border-color: var(--accent);
+    }
+
+
+    .sort-nav {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 28px;
+      width: 100%;
+    }
+
+
+    .sort-btn {
+      flex: 1;
+      max-width: 180px;
+      text-align: center;
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      color: var(--text-muted);
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.2s;
+    }
+
+
+    .sort-btn:hover {
+      color: var(--text-main);
+      background: var(--card-hover);
+      border-color: var(--accent);
+    }
+
+
+    .sort-btn.active {
+      background: var(--accent);
+      color: #000000;
+      border-color: var(--accent);
+    }
+
+
+    .home-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-top: 10px;
+    }
+
+
+    .category-block:last-child:nth-child(odd) {
+      grid-column: span 2;
+      max-width: 440px;
+      justify-self: center;
+      width: 100%;
+    }
+
+
+    @media (max-width: 768px) {
+      .home-grid {
+        grid-template-columns: 1fr;
+      }
+      .category-block:last-child:nth-child(odd) {
+        grid-column: span 1;
+        max-width: 100%;
+      }
+    }
+
+
+    .category-block {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+
+    .category-block-title {
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+
+    .pyramid-container {
+      position: relative;
+      width: 100%;
+      height: 410px;
+      margin: 0 auto;
+    }
+
+
+    .pyramid-card {
+      position: absolute;
+      background: var(--card-hover);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+
+    .pyramid-card .pyramid-cover-box {
+      width: 100%;
+      height: 120px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.2);
+      margin-bottom: 8px;
+      position: relative;
+      transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+
+    .pyramid-card.pos-1 {
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 145px;
+      border-color: var(--accent);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      z-index: 3;
+      opacity: 1;
+    }
+
+
+    body[data-theme="space"] .pyramid-card.pos-1,
+    body[data-theme="abyss"] .pyramid-card.pos-1 {
+      box-shadow: 0 0 15px rgba(0,0,0,0.4), 0 0 10px var(--accent);
+    }
+
+
+    .pyramid-card.pos-1 .pyramid-cover-box {
+      height: 135px;
+    }
+
+
+    .pyramid-card.pos-2 {
+      top: 215px;
+      left: calc(50% - 73px);
+      transform: translateX(-50%);
+      width: 130px;
+      border-color: var(--border);
+      z-index: 2;
+      opacity: 1;
+    }
+
+
+    .pyramid-card.pos-3 {
+      top: 215px;
+      left: calc(50% + 73px);
+      transform: translateX(-50%);
+      width: 130px;
+      border-color: var(--border);
+      z-index: 1;
+      opacity: 1;
+    }
+
+
+    .pyramid-card.pos-out {
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.6);
+      opacity: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+
+    .pyramid-card.pos-in {
+      top: 215px;
+      left: calc(50% + 170px);
+      transform: translateX(-50%) scale(0.6);
+      opacity: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+
+    .pyramid-card:hover {
+      border-color: var(--accent);
+      transform: translateX(-50%) scale(1.05) translateY(-4px) !important;
+      z-index: 10;
+    }
+
+
+    .pyramid-cover {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      object-position: center !important;
+      display: block !important;
+    }
+
+
+    .pyramid-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 6px;
+      line-height: 1.2;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 31px;
+    }
+
+
+    .pyramid-rating {
+      font-size: 12px;
+      font-weight: 900;
+      padding: 3px 10px;
+      border-radius: 6px;
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+
+    .cards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+
+    .card-row-wrapper {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+      transition: background-color 0.15s ease;
+    }
+
+
+    .card-row-wrapper:hover {
+      background: var(--card-hover);
+    }
+
+
+    .card-row {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+
+    .card-cover-container {
+      width: 64px;
+      height: 90px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: rgba(0, 0, 0, 0.2);
+      display: block;
+      position: relative;
+    }
+
+
+    .card-cover {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      object-position: center !important;
+      display: block !important;
+    }
+
+
+    .card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+
+    .card-author-type {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+
+    .card-author {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+
+    .card-type-tag {
+      font-size: 10px;
+      font-weight: 800;
+      background: var(--border);
+      color: var(--text-muted);
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+
+    .card-rating-badge {
+      display: inline-block;
+      align-self: flex-start;
+      margin-top: 4px;
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 4px 12px;
+      border-radius: 6px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+
+    .tracklist-toggle {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      padding: 4px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+
+    .tracklist-toggle:hover {
+      text-decoration: underline;
+    }
+
+
+    .tracklist-container {
+      border-top: 1px dashed transparent;
+      background: rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      padding: 0 16px;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                  opacity 0.3s ease, 
+                  padding 0.3s ease,
+                  border-color 0.3s ease;
+    }
+
+
+    .tracklist-container.open {
+      max-height: 1200px;
+      opacity: 1;
+      padding: 12px 16px 14px 16px;
+      border-top-color: var(--border);
+    }
+
+
+    .track-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+
+    .track-row:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+
+    .track-name {
+      color: var(--text-main);
+      flex: 1;
+      padding-right: 12px;
+    }
+
+
+    .track-rating {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 4px;
+      color: #ffffff;
+    }
+
+
+    .empty-msg {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 40px;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+
+<canvas id="spaceCanvas"></canvas>
+
+
+<div class="container">
+  <div class="theme-bar" id="themeBar">
+    <button class="theme-btn active" onclick="setTheme('dark')">Dark</button>
+    <button class="theme-btn" onclick="setTheme('amoled')">AMOLED</button>
+    <button class="theme-btn" onclick="setTheme('light')">Light</button>
+    
+    <div class="special-dropdown">
+      <button class="theme-btn" id="specialBtn">Special ▾</button>
+      <div class="special-menu">
+        <button class="special-item" onclick="setTheme('space')">Cosmos</button>
+        <button class="special-item" onclick="setTheme('abyss')">Abyss</button>
+      </div>
+    </div>
+    
+    <div class="palette-wrapper">
+      <button class="random-color-btn" onclick="randomizeAccent()">🎨 Цвет</button>
+      <div class="palette-list" id="paletteList"></div>
+    </div>
+  </div>
+
+
+  <header>
+    <div class="logo">KRAP</div>
+    <div class="subtitle">Kollekuuoner's Reviews on Absolute Products</div>
+  </header>
+
+
+  <div class="status-banner" id="statusBanner">
+    <span>Страница: <span class="status-badge" id="statusCatText">HOME</span></span>
+    <span id="statusTypeWrapper" style="display: none;">| Тип: <span class="status-badge" id="statusTypeText">ВСЕ</span></span>
+    <span id="statusSortWrapper" style="display: none;">| Сортировка: <span class="status-badge" id="statusSortText">ТОП</span></span>
+  </div>
+
+
+  <div class="categories-nav" id="catNav">
+    <button class="cat-btn" onclick="switchCategory('Book')">Book</button>
+    <button class="cat-btn" onclick="switchCategory('Cinema')">Cinema</button>
+    <div class="home-nav-group">
+      <button class="cat-btn cat-btn-home active" onclick="switchCategory('Home')">Home</button>
+      <button class="cat-btn cat-btn-sub" onclick="switchCategory('Other')">Other</button>
+    </div>
+    <button class="cat-btn" onclick="switchCategory('Music')">Music</button>
+    <button class="cat-btn" onclick="switchCategory('Games')">Games</button>
+  </div>
+
+
+  <div class="search-box" id="searchBox" style="display: none;">
+    <input type="text" id="searchInput" class="search-input" placeholder="Поиск по исполнителю, автору или названию..." oninput="render()">
+  </div>
+
+
+  <div class="type-nav" id="typeNav" style="display: none;">
+    <button class="type-btn active" onclick="switchMusicType('all')">Все типы</button>
+    <button class="type-btn" onclick="switchMusicType('album')">Альбомы</button>
+    <button class="type-btn" onclick="switchMusicType('single')">Синглы</button>
+  </div>
+
+
+  <div class="sort-nav" id="sortNav" style="display: none;">
+    <button class="sort-btn active" onclick="switchSort('top')">Топ</button>
+    <button class="sort-btn" onclick="switchSort('anti')">Антитоп</button>
+  </div>
+
+
+  <div id="content">Загрузка данных...</div>
+</div>
+
+
+<script>
+  const SHEET_ID = '1NZn2PzBB2UZrKB-OSEf3_TbVXt4nf39VidG_65qqZ7o';
+
+
+  let allData = [];
+  let currentCategory = 'Home';
+  let currentSort = 'top';
+  let currentMusicType = 'all';
+
+
+  let favOffsets = { 'Book': 0, 'Cinema': 0, 'Music': 0, 'Games': 0, 'Other': 0 };
+  let rotationTimer = null;
+
+
+  let waveAlpha = 0;
+  let waveOffset = 0;
+
+
+  const colorPalettes = [
+    { accent: '#ffe600', n1: 'rgba(255, 230, 0, 0.18)', n2: 'rgba(255, 100, 0, 0.15)' },
+    { accent: '#ef4444', n1: 'rgba(239, 68, 68, 0.20)', n2: 'rgba(244, 63, 94, 0.15)' },
+    { accent: '#3b82f6', n1: 'rgba(59, 130, 246, 0.20)', n2: 'rgba(147, 51, 234, 0.18)' },
+    { accent: '#10b981', n1: 'rgba(16, 185, 129, 0.20)', n2: 'rgba(6, 182, 212, 0.15)' },
+    { accent: '#a855f7', n1: 'rgba(168, 85, 247, 0.20)', n2: 'rgba(236, 72, 153, 0.18)' },
+    { accent: '#00e5ff', n1: 'rgba(0, 229, 255, 0.20)', n2: 'rgba(59, 130, 246, 0.15)' },
+    { accent: '#f97316', n1: 'rgba(249, 115, 22, 0.20)', n2: 'rgba(234, 179, 8, 0.15)' }
+  ];
+
+
+  function applyPalette(palette) {
+    document.documentElement.style.setProperty('--accent', palette.accent);
+    document.documentElement.style.setProperty('--nebula-1', palette.n1);
+    document.documentElement.style.setProperty('--nebula-2', palette.n2);
+    localStorage.setItem('krap_palette', JSON.stringify(palette));
+  }
+
+
+  function selectPalette(index) {
+    if (colorPalettes[index]) {
+      applyPalette(colorPalettes[index]);
+    }
+  }
+
+
+  function randomizeAccent() {
+    const palette = colorPalettes[Math.floor(Math.random() * colorPalettes.length)];
+    applyPalette(palette);
+  }
+
+
+  function renderPaletteList() {
+    const list = document.getElementById('paletteList');
+    if (!list) return;
+    list.innerHTML = colorPalettes.map((p, idx) => `
+      <span class="color-dot" 
+            style="background-color: ${p.accent}; color: ${p.accent};" 
+            title="Выбрать цвет" 
+            onclick="selectPalette(${idx})"></span>
+    `).join('');
+  }
+  renderPaletteList();
+
+
+  function setTheme(themeName) {
+    document.body.setAttribute('data-theme', themeName);
+    localStorage.setItem('krap_theme', themeName);
+
+
+    document.querySelectorAll('#themeBar > .theme-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('onclick')?.includes(`'${themeName}'`));
+    });
+
+
+    const specialBtn = document.getElementById('specialBtn');
+    const specialItems = document.querySelectorAll('.special-item');
+    const isSpecial = (themeName === 'space' || themeName === 'abyss');
+
+
+    specialBtn.classList.toggle('active', isSpecial);
+    if (themeName === 'space') {
+      specialBtn.innerText = 'Cosmos ▾';
+    } else if (themeName === 'abyss') {
+      specialBtn.innerText = 'Abyss ▾';
+    } else {
+      specialBtn.innerText = 'Special ▾';
+    }
+
+
+    specialItems.forEach(item => {
+      item.classList.toggle('active', item.getAttribute('onclick')?.includes(`'${themeName}'`));
+    });
+
+
+    const savedPalette = localStorage.getItem('krap_palette');
+    if (savedPalette) {
+      applyPalette(JSON.parse(savedPalette));
+    }
+  }
+
+
+  const savedTheme = localStorage.getItem('krap_theme') || 'dark';
+  setTheme(savedTheme);
+
+
+  const canvas = document.getElementById('spaceCanvas');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+
+  for (let i = 0; i < 160; i++) {
+    const x = Math.random() * canvas.width;
+    const y = Math.random() * canvas.height;
+    const baseAlpha = Math.random() * 0.8 + 0.2;
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 3 + 1.5;
+
+
+    stars.push({
+      x,
+      y,
+      originX: x,
+      originY: y,
+      radius: Math.random() * 1.3 + 0.4,
+      alpha: baseAlpha,
+      baseAlpha: baseAlpha,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed
+    });
+  }
+
+
+  // Получение RGB из акцентной переменной --accent для лёгкой подсветки волн
+  function getAccentRgb() {
+    const accentStr = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    if (accentStr.startsWith('#')) {
+      let hex = accentStr.slice(1);
+      if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+      const num = parseInt(hex, 16);
+      if (!isNaN(num)) {
+        return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+      }
+    }
+    return [255, 230, 0];
+  }
+
+
+  function drawSpace() {
+    const currentTheme = document.body.getAttribute('data-theme');
+    const isCanvasTheme = (currentTheme === 'space' || currentTheme === 'abyss');
+
+
+    if (isCanvasTheme || waveAlpha > 0.001) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+
+      const isAbyss = (currentTheme === 'abyss');
+
+
+      if (isAbyss) {
+        if (waveAlpha < 1) waveAlpha = Math.min(1, waveAlpha + 0.025);
+      } else {
+        if (waveAlpha > 0) waveAlpha = Math.max(0, waveAlpha - 0.025);
+      }
+
+
+      // Исправлено: Движение звёзд работает как в Cosmos, так и в Abyss
+      const isMovingStars = (currentTheme === 'space' || currentTheme === 'abyss' || waveAlpha > 0.01);
+
+
+      stars.forEach(star => {
+        if (isMovingStars) {
+          star.x += star.vx;
+          star.y += star.vy;
+          star.alpha -= 0.012;
+
+
+          if (star.alpha <= 0) {
+            star.x = canvas.width / 2 + (Math.random() - 0.5) * 150;
+            star.y = canvas.height / 2 + (Math.random() - 0.5) * 150;
+            star.alpha = star.baseAlpha;
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 4 + 2;
+            star.vx = Math.cos(angle) * speed;
+            star.vy = Math.sin(angle) * speed;
+          }
+        } else {
+          star.x += (star.originX - star.x) * 0.08;
+          star.y += (star.originY - star.y) * 0.08;
+          
+          if (star.alpha < star.baseAlpha) {
+            star.alpha = Math.min(star.baseAlpha, star.alpha + 0.02);
+          } else {
+            star.alpha += (Math.random() - 0.5) * 0.02;
+            star.alpha = Math.max(0.2, Math.min(1, star.alpha));
+          }
+        }
+
+
+        ctx.globalAlpha = Math.max(0, star.alpha);
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+
+      if (waveAlpha > 0) {
+        waveOffset += 0.02;
+        ctx.save();
+        ctx.globalAlpha = waveAlpha;
+
+
+        const [ar, ag, ab] = getAccentRgb();
+        const tintFactor = 0.12; // Мягкий оттенок акцентного цвета для волн (12%)
+
+
+        const baseWaveLayers = [
+          { r: 2, g: 8, b: 26, a: 0.95, amp: 70, freq: 0.005, speed: 0.8, yRatio: 0.25 },
+          { r: 4, g: 16, b: 44, a: 0.85, amp: 55, freq: 0.008, speed: -1.2, yRatio: 0.38 },
+          { r: 8, g: 26, b: 62, a: 0.80, amp: 80, freq: 0.006, speed: 1.4, yRatio: 0.50 },
+          { r: 3, g: 14, b: 38, a: 0.88, amp: 45, freq: 0.011, speed: -0.9, yRatio: 0.62 },
+          { r: 1, g: 8, b: 24, a: 0.92, amp: 90, freq: 0.004, speed: 0.7, yRatio: 0.74 },
+          { r: 0, g: 3, b: 12, a: 0.98, amp: 100, freq: 0.003, speed: -0.5, yRatio: 0.86 }
+        ];
+
+
+        baseWaveLayers.forEach(layer => {
+          const nr = Math.round(layer.r * (1 - tintFactor) + ar * tintFactor);
+          const ng = Math.round(layer.g * (1 - tintFactor) + ag * tintFactor);
+          const nb = Math.round(layer.b * (1 - tintFactor) + ab * tintFactor);
+
+
+          ctx.fillStyle = `rgba(${nr}, ${ng}, ${nb}, ${layer.a})`;
+          ctx.beginPath();
+          ctx.moveTo(0, canvas.height);
+          const baseY = canvas.height * layer.yRatio;
+
+
+          for (let x = 0; x <= canvas.width + 10; x += 8) {
+            const y = baseY + Math.sin(x * layer.freq + waveOffset * layer.speed) * layer.amp;
+            ctx.lineTo(x, y);
+          }
+
+
+          ctx.lineTo(canvas.width, canvas.height);
+          ctx.closePath();
+          ctx.fill();
+        });
+
+
+        ctx.restore();
+      }
+    }
+
+
+    requestAnimationFrame(drawSpace);
+  }
+  drawSpace();
+
+
+  function sanitizeText(val) {
+    if (val === null || val === undefined) return '';
+    let str = String(val).trim();
+    if ((str.startsWith('"') && str.endsWith('"')) || (str.startsWith("'") && str.endsWith("'"))) {
+      str = str.slice(1, -1);
+    }
+    return str.replace(/[<>]/g, '').trim();
+  }
+
+
+  function cleanUrl(val) {
+    if (!val) return '';
+    let str = String(val).trim();
+    const match = str.match(/https?:\/\/[^\s"'<>\)]+/i);
+    return match ? match[0] : '';
+  }
+
+
+  function parseRating(cell) {
+    if (!cell || cell.v === undefined || cell.v === null) return 0;
+    let v = cell.v;
+    if (typeof v === 'number') return Math.min(10, Math.max(0, v));
+
+
+    let str = String(cell.f || v).replace(',', '.').trim();
+    if (str.includes('Date(') || str.length > 6) return 0;
+
+
+    let match = str.match(/\b(10(\.0)?|[1-9](\.\d)?)\b/);
+    if (match) return parseFloat(match[0]);
+
+
+    let num = parseFloat(str);
+    return isNaN(num) ? 0 : Math.min(10, Math.max(0, num));
+  }
+
+
+  function calculateMedian(numbers) {
+    if (!numbers || numbers.length === 0) return 0;
+    const sorted = [...numbers].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    if (sorted.length % 2 === 0) {
+      return (sorted[mid - 1] + sorted[mid]) / 2;
+    }
+    return sorted[mid];
+  }
+
+
+  function parseTracks(rawText) {
+    if (!rawText) return [];
+    const lines = rawText.split('\n');
+    const tracks = [];
+
+
+    lines.forEach(line => {
+      const trimmed = line.trim();
+      if (!trimmed) return;
+
+
+      const match = trimmed.match(/^(?:(\d+)[\.\)\s]+)?(.+?)[\s\-:\=]+(10(?:\.0)?|[0-9](?:\.\d)?)$/);
+      if (match) {
+        tracks.push({
+          num: match[1] || '',
+          title: match[2].trim(),
+          rating: parseFloat(match[3])
+        });
+      } else {
+        tracks.push({ num: '', title: trimmed, rating: 0 });
+      }
+    });
+
+
+    return tracks;
+  }
+
+
+  function getRatingColor(rating) {
+    if (!rating || rating < 1) return '#4b5563';
+    const r = Math.min(10, Math.max(1, rating));
+    const hue = ((r - 1) / 9) * 120;
+    return `hsl(${hue}, 85%, 38%)`;
+  }
+
+
+  async function loadData() {
+    try {
+      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+      const res = await fetch(url);
+      const text = await res.text();
+      const json = JSON.parse(text.substring(47, text.length - 2));
+
+
+      allData = json.table.rows.map((row, index) => {
+        const c = row.c;
+        const rawTracks = parseTracks(c[8]?.v || '');
+        let manualRating = parseRating(c[3]);
+
+
+        const trackRatings = rawTracks.map(t => t.rating).filter(r => r > 0);
+        const calculatedRating = trackRatings.length > 0 ? calculateMedian(trackRatings) : manualRating;
+
+
+        return {
+          id: index,
+          title: sanitizeText(c[0]?.v || 'Без названия'),
+          author: sanitizeText(c[1]?.v || ''),
+          category: sanitizeText(c[2]?.v || 'Other'),
+          rating: calculatedRating,
+          rawDate: c[4]?.v || '',
+          isFavorite: String(c[5]?.v || '').toLowerCase().includes('да'),
+          cover: cleanUrl(c[6]?.v || c[6]?.f),
+          type: sanitizeText(c[7]?.v || '').toLowerCase(),
+          tracks: rawTracks
+        };
+      });
+
+
+      render();
+      startRotationTimer();
+    } catch (e) {
+      document.getElementById('content').innerHTML = '<div class="empty-msg" style="color:#ef4444">Ошибка загрузки данных!</div>';
+    }
+  }
+
+
+  function switchCategory(cat) {
+    currentCategory = cat;
+    document.querySelectorAll('#catNav .cat-btn').forEach(b => {
+      const btnText = b.innerText.trim();
+      b.classList.toggle('active', btnText.toLowerCase() === cat.toLowerCase());
+    });
+    render();
+  }
+
+
+  function switchSort(sort) {
+    currentSort = sort;
+    const sortLabels = { 'top': 'Топ', 'anti': 'Антитоп' };
+    document.querySelectorAll('#sortNav .sort-btn').forEach(b => {
+      b.classList.toggle('active', b.innerText === sortLabels[sort]);
+    });
+    render();
+  }
+
+
+  function switchMusicType(type) {
+    currentMusicType = type;
+    const typeLabels = { 'all': 'Все типы', 'album': 'Альбомы', 'single': 'Синглы' };
+    document.querySelectorAll('#typeNav .type-btn').forEach(b => {
+      b.classList.toggle('active', b.innerText === typeLabels[type]);
+    });
+    render();
+  }
+
+
+  function toggleTracklist(id) {
+    const el = document.getElementById(`tracklist-${id}`);
+    const btn = document.getElementById(`toggle-btn-${id}`);
+    if (el) {
+      const isOpen = el.classList.contains('open');
+      if (isOpen) {
+        el.classList.remove('open');
+        if (btn) btn.innerText = `▼ Раскрыть треклист (${el.dataset.count})`;
+      } else {
+        el.classList.add('open');
+        if (btn) btn.innerText = `▲ Скрыть треклист`;
+      }
+    }
+  }
+
+
+  function updateStatusBar() {
+    document.getElementById('statusCatText').innerText = currentCategory.toUpperCase();
+    const sortWrapper = document.getElementById('statusSortWrapper');
+    const sortText = document.getElementById('statusSortText');
+    const typeWrapper = document.getElementById('statusTypeWrapper');
+    const typeText = document.getElementById('statusTypeText');
+
+
+    if (currentCategory === 'Home') {
+      sortWrapper.style.display = 'none';
+      typeWrapper.style.display = 'none';
+    } else {
+      sortWrapper.style.display = 'inline';
+      const sortLabels = { 'top': 'ТОП', 'anti': 'АНТИТОП' };
+      sortText.innerText = sortLabels[currentSort] || currentSort.toUpperCase();
+
+
+      if (currentCategory === 'Music') {
+        typeWrapper.style.display = 'inline';
+        const typeLabels = { 'all': 'ВСЕ', 'album': 'АЛЬБОМЫ', 'single': 'СИНГЛЫ' };
+        typeText.innerText = typeLabels[currentMusicType] || currentMusicType.toUpperCase();
+      } else {
+        typeWrapper.style.display = 'none';
+      }
+    }
+  }
+
+
+  function getFilteredItems(items) {
+    const query = document.getElementById('searchInput').value.toLowerCase().trim();
+
+
+    let result = items.filter(item => {
+      const matchesQuery = item.title.toLowerCase().includes(query) || 
+                           item.author.toLowerCase().includes(query);
+      if (!matchesQuery) return false;
+
+
+      if (currentCategory === 'Music' && currentMusicType !== 'all') {
+        const itemType = item.type.toLowerCase();
+        if (currentMusicType === 'album') {
+          return itemType.includes('альбом') || itemType.includes('album');
+        }
+        if (currentMusicType === 'single') {
+          return itemType.includes('сингл') || itemType.includes('single');
+        }
+      }
+
+
+      return true;
+    });
+
+
+    if (currentSort === 'anti') {
+      result.sort((a, b) => a.rating - b.rating);
+    } else {
+      result.sort((a, b) => b.rating - a.rating);
+    }
+
+
+    return result;
+  }
+
+
+  function createPyramidCardHTML(item, posClass) {
+    if (!item) return '';
+    const defaultCover = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%235a6070" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+    const imgSrc = item.cover || defaultCover;
+    const ratingText = item.rating > 0 ? item.rating.toFixed(1) : 'N/A';
+    const ratingBg = getRatingColor(item.rating);
+
+
+    return `
+      <div class="pyramid-card ${posClass}">
+        <div class="pyramid-cover-box">
+          <img class="pyramid-cover" src="${imgSrc}" alt="${item.title}" onerror="this.src='${defaultCover}'">
+        </div>
+        <div class="pyramid-title" title="${item.title}">${item.title}</div>
+        <div class="pyramid-rating" style="background-color: ${ratingBg}">${ratingText}</div>
+      </div>
+    `;
+  }
+
+
+  function renderPyramidContent(favs, offset) {
+    if (favs.length === 0) return '';
+    const topItem = favs[offset % favs.length];
+    const leftItem = favs.length > 1 ? favs[(offset + 1) % favs.length] : null;
+    const rightItem = favs.length > 2 ? favs[(offset + 2) % favs.length] : null;
+
+
+    let html = '';
+    if (topItem) html += createPyramidCardHTML(topItem, 'pos-1');
+    if (leftItem) html += createPyramidCardHTML(leftItem, 'pos-2');
+    if (rightItem) html += createPyramidCardHTML(rightItem, 'pos-3');
+
+
+    return html;
+  }
+
+
+  function createCategoryBlockHTML(catName) {
+    const favs = allData
+      .filter(i => i.category.toLowerCase() === catName.toLowerCase() && i.isFavorite)
+      .sort((a, b) => b.rating - a.rating);
+
+
+    if (favs.length === 0) {
+      return `
+        <div class="category-block">
+          <div class="category-block-title">${catName}</div>
+          <div class="empty-msg" style="padding: 20px 0;">Пусто</div>
+        </div>
+      `;
+    }
+
+
+    const offset = favOffsets[catName] || 0;
+
+
+    return `
+      <div class="category-block">
+        <div class="category-block-title">${catName}</div>
+        <div class="pyramid-container" id="pyramid-container-${catName}">
+          ${renderPyramidContent(favs, offset)}
+        </div>
+      </div>
+    `;
+  }
+
+
+  function rotatePyramid(catName) {
+    const favs = allData
+      .filter(i => i.category.toLowerCase() === catName.toLowerCase() && i.isFavorite)
+      .sort((a, b) => b.rating - a.rating);
+
+
+    if (favs.length <= 3) return;
+
+
+    const container = document.getElementById(`pyramid-container-${catName}`);
+    if (!container) return;
+
+
+    const currentOffset = favOffsets[catName] || 0;
+    const nextOffset = (currentOffset + 1) % favs.length;
+    favOffsets[catName] = nextOffset;
+
+
+    const card1 = container.querySelector('.pos-1');
+    const card2 = container.querySelector('.pos-2');
+    const card3 = container.querySelector('.pos-3');
+
+
+    if (card1) {
+      card1.classList.remove('pos-1');
+      card1.classList.add('pos-out');
+      setTimeout(() => card1.remove(), 650);
+    }
+
+
+    if (card2) {
+      card2.classList.remove('pos-2');
+      card2.classList.add('pos-1');
+    }
+
+
+    if (card3) {
+      card3.classList.remove('pos-3');
+      card3.classList.add('pos-2');
+    }
+
+
+    const newItem = favs[(nextOffset + 2) % favs.length];
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = createPyramidCardHTML(newItem, 'pos-in');
+    const newCard = tempDiv.firstElementChild;
+    container.appendChild(newCard);
+
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        newCard.classList.remove('pos-in');
+        newCard.classList.add('pos-3');
+      });
+    });
+  }
+
+
+  function startRotationTimer() {
+    if (rotationTimer) clearInterval(rotationTimer);
+    rotationTimer = setInterval(() => {
+      if (currentCategory !== 'Home') return;
+
+
+      const categories = ['Book', 'Cinema', 'Music', 'Games', 'Other'];
+      categories.forEach(catName => {
+        rotatePyramid(catName);
+      });
+    }, 7000);
+  }
+
+
+  function createCardRowHTML(item) {
+    const defaultCover = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%235a6070" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+    const imgSrc = item.cover || defaultCover;
+    const ratingText = item.rating > 0 ? item.rating.toFixed(1) : 'N/A';
+    const ratingBg = getRatingColor(item.rating);
+    const typeTag = item.type ? `<span class="card-type-tag">${item.type}</span>` : '';
+
+
+    const hasTracks = item.tracks && item.tracks.length > 0;
+    
+    let tracklistHTML = '';
+    if (hasTracks) {
+      const tracksRows = item.tracks.map((t, idx) => {
+        const tRatingBg = getRatingColor(t.rating);
+        const tRatingText = t.rating > 0 ? t.rating.toFixed(1) : '—';
+        const numPrefix = t.num ? `${t.num}. ` : `${idx + 1}. `;
+        return `
+          <div class="track-row">
+            <span class="track-name">${numPrefix}${t.title}</span>
+            <span class="track-rating" style="background-color: ${tRatingBg}">${tRatingText}</span>
+          </div>
+        `;
+      }).join('');
+
+
+      tracklistHTML = `
+        <div id="tracklist-${item.id}" class="tracklist-container" data-count="${item.tracks.length}">
+          ${tracksRows}
+        </div>
+      `;
+    }
+
+
+    return `
+      <div class="card-row-wrapper">
+        <div class="card-row">
+          <div class="card-cover-container">
+            <img class="card-cover" src="${imgSrc}" alt="${item.title}" onerror="this.src='${defaultCover}'">
+          </div>
+          <div class="card-content">
+            <div class="card-author-type">
+              <span class="card-author">${item.author || item.category}</span>
+              ${typeTag}
+            </div>
+            <div class="card-title">${item.title}</div>
+            <div class="card-rating-badge" style="background-color: ${ratingBg}">${ratingText}</div>
+            ${hasTracks ? `
+              <button id="toggle-btn-${item.id}" class="tracklist-toggle" onclick="toggleTracklist(${item.id})">
+                ▼ Раскрыть треклист (${item.tracks.length})
+              </button>
+            ` : ''}
+          </div>
+        </div>
+        ${tracklistHTML}
+      </div>
+    `;
+  }
+
+
+  function render() {
+    updateStatusBar();
+
+
+    const searchBox = document.getElementById('searchBox');
+    const typeNav = document.getElementById('typeNav');
+    const sortNav = document.getElementById('sortNav');
+    const container = document.getElementById('content');
+
+
+    if (currentCategory === 'Home') {
+      searchBox.style.display = 'none';
+      typeNav.style.display = 'none';
+      sortNav.style.display = 'none';
+
+
+      const categories = ['Book', 'Cinema', 'Music', 'Games', 'Other'];
+      container.innerHTML = `
+        <div class="home-grid">
+          ${categories.map(createCategoryBlockHTML).join('')}
+        </div>
+      `;
+    } else {
+      searchBox.style.display = 'block';
+      sortNav.style.display = 'flex';
+
+
+      if (currentCategory === 'Music') {
+        typeNav.style.display = 'flex';
+      } else {
+        typeNav.style.display = 'none';
+      }
+
+
+      const categoryItems = allData.filter(i => i.category.toLowerCase() === currentCategory.toLowerCase());
+      const filtered = getFilteredItems(categoryItems);
+
+
+      container.innerHTML = filtered.length
+        ? `<div class="cards-list">${filtered.map(createCardRowHTML).join('')}</div>`
+        : '<div class="empty-msg">Ничего не найдено в этой категории с выбранными фильтрами.</div>';
+    }
+  }
+
+
+  loadData();
+</script>
+</body>
+</html>
