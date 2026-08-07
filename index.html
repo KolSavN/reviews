@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KRAP - Kollekuuoner's Reviews on Assorted Products</title>
+  <title>KRAP - Kollekuuoner's Reviews on Absolute Products</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -569,7 +569,6 @@
       transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1), aspect-ratio 0.3s ease;
     }
 
-    /* Квадратные обложки для музыки в пирамиде */
     .pyramid-card.music-card .pyramid-cover-box {
       height: auto !important;
       aspect-ratio: 1 / 1;
@@ -708,7 +707,6 @@
       transition: height 0.2s ease;
     }
 
-    /* Квадратная обложка для музыки в общем списке */
     .card-cover-container.square-cover {
       height: 64px;
     }
@@ -878,7 +876,7 @@
 
   <header>
     <div class="logo">KRAP</div>
-    <div class="subtitle">Kollekuuoner's Reviews on Assorted Products</div>
+    <div class="subtitle">Kollekuuoner's Reviews on Absolute Products</div>
   </header>
 
   <div class="status-banner" id="statusBanner">
@@ -1010,16 +1008,17 @@
   
   let stars = [];
   let shootingStars = [];
+  let abyssProgress = 0; // 0 = Cosmos (звёзды на месте), 1 = Abyss (звёзды разлетелись)
 
   function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    initStars();
   }
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
 
   function initStars() {
     stars = [];
+    const maxDim = Math.max(canvas.width, canvas.height);
     for (let i = 0; i < 180; i++) {
       stars.push({
         x: Math.random() * canvas.width,
@@ -1029,11 +1028,13 @@
         baseAlpha: Math.random() * 0.7 + 0.3,
         twinkleSpeed: (Math.random() * 0.015 + 0.005) * (Math.random() > 0.5 ? 1 : -1),
         vx: (Math.random() - 0.5) * 0.15,
-        vy: (Math.random() - 0.5) * 0.15
+        vy: (Math.random() - 0.5) * 0.15,
+        scatterDist: maxDim * (0.7 + Math.random() * 0.8) // Индивидуальная дистанция разлёта
       });
     }
   }
-  initStars();
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
 
   function spawnShootingStar() {
     const startX = Math.random() * (canvas.width * 1.2) - canvas.width * 0.1;
@@ -1083,16 +1084,24 @@
     const currentTheme = document.body.getAttribute('data-theme');
     const isCanvasTheme = (currentTheme === 'space' || currentTheme === 'abyss');
 
-    if (isCanvasTheme || waveAlpha > 0.001) {
+    if (isCanvasTheme || waveAlpha > 0.001 || abyssProgress > 0.001) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const isAbyss = (currentTheme === 'abyss');
 
+      // Плавный прозрачности волн
       if (isAbyss) {
         if (waveAlpha < 1) waveAlpha = Math.min(1, waveAlpha + 0.025);
       } else {
         if (waveAlpha > 0) waveAlpha = Math.max(0, waveAlpha - 0.025);
       }
+
+      // Плавный прогресс разлёта звёзд
+      const targetProgress = isAbyss ? 1 : 0;
+      abyssProgress += (targetProgress - abyssProgress) * 0.04;
+
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
 
       stars.forEach(star => {
         star.x += star.vx;
@@ -1108,10 +1117,24 @@
           star.twinkleSpeed = -star.twinkleSpeed;
         }
 
-        ctx.globalAlpha = Math.max(0, Math.min(1, star.alpha));
+        // Вектор разлёта от центра экрана
+        const dx = star.x - cx;
+        const dy = star.y - cy;
+        const dist = Math.hypot(dx, dy) || 1;
+        const dirX = dx / dist;
+        const dirY = dy / dist;
+
+        // Текущее смещение звёзд
+        const drawX = star.x + dirX * (star.scatterDist * abyssProgress);
+        const drawY = star.y + dirY * (star.scatterDist * abyssProgress);
+
+        // Плавное затухание при разлёте
+        const currentAlpha = Math.max(0, Math.min(1, star.alpha * (1 - abyssProgress * 0.75)));
+
+        ctx.globalAlpha = currentAlpha;
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
-        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.arc(drawX, drawY, star.radius, 0, Math.PI * 2);
         ctx.fill();
       });
 
@@ -1224,7 +1247,6 @@
     return isNaN(num) ? 0 : Math.min(10, Math.max(0, num));
   }
 
-  // --- ТОЧНЫЙ РАСЧЕТ МЕДИАНЫ ---
   function calculateMedian(numbers) {
     if (!numbers || numbers.length === 0) return 0;
     const sorted = numbers.map(n => Number(n)).filter(n => !isNaN(n) && n > 0).sort((a, b) => a - b);
@@ -1239,11 +1261,9 @@
       median = sorted[mid];
     }
 
-    // Точное округление медианы до 1 знака после запятой
     return Math.round(median * 10) / 10;
   }
 
-  // --- УЛУЧШЕННЫЙ ПАРСИНГ ТРЕКОВ И ОЦЕНОК (ТОЧКА И ЗАПЯТАЯ) ---
   function parseTracks(rawText) {
     if (!rawText) return [];
     const lines = String(rawText).split('\n');
@@ -1253,7 +1273,6 @@
       const trimmed = line.trim();
       if (!trimmed) return;
 
-      // Распознаем формат: [номер] название [разделитель] оценка (например: "8.5" или "8,5" или "10")
       const match = trimmed.match(/^(?:(\d+)[\.\)\s]+)?(.+?)[\s\-:\=\|]+((?:10(?:[\.,]0+)?)|(?:[0-9](?:[\.,]\d+)?))\s*$/);
       if (match) {
         const ratingVal = parseFloat(match[3].replace(',', '.'));
