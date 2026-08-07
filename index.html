@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KRAP - Kollekuuoner's Reviews on Absolute Products</title>
+  <title>KRAP - Kollekuuoner's Reviews on Assorted Products</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -876,7 +876,7 @@
 
   <header>
     <div class="logo">KRAP</div>
-    <div class="subtitle">Kollekuuoner's Reviews on Absolute Products</div>
+    <div class="subtitle">Kollekuuoner's Reviews on Assorted Products</div>
   </header>
 
   <div class="status-banner" id="statusBanner">
@@ -993,6 +993,10 @@
       item.classList.toggle('active', item.getAttribute('onclick')?.includes(`'${themeName}'`));
     });
 
+    if (themeName === 'abyss') {
+      shootingStars = []; 
+    }
+
     const savedPalette = localStorage.getItem('krap_palette');
     if (savedPalette) {
       applyPalette(JSON.parse(savedPalette));
@@ -1002,13 +1006,12 @@
   const savedTheme = localStorage.getItem('krap_theme') || 'dark';
   setTheme(savedTheme);
 
-  // --- CANVAS & АНИМАЦИЯ ---
   const canvas = document.getElementById('spaceCanvas');
   const ctx = canvas.getContext('2d');
   
   let stars = [];
   let shootingStars = [];
-  let abyssProgress = 0; // 0 = Cosmos (на месте), 1 = Abyss (разлетелись за экран)
+  let abyssProgress = 0;
 
   function resizeCanvas() {
     canvas.width = window.innerWidth;
@@ -1088,27 +1091,22 @@
 
       const isAbyss = (currentTheme === 'abyss');
 
-      // Прозрачность волн
       if (isAbyss) {
         if (waveAlpha < 1) waveAlpha = Math.min(1, waveAlpha + 0.025);
       } else {
         if (waveAlpha > 0) waveAlpha = Math.max(0, waveAlpha - 0.025);
       }
 
-      // Плавный прогресс разлёта (0 = на месте, 1 = разлетелись)
       const targetProgress = isAbyss ? 1 : 0;
-      abyssProgress += (targetProgress - abyssProgress) * 0.035;
-
-      // Квадратичное ускорение разлёта
-      const easedProgress = abyssProgress * abyssProgress;
+      abyssProgress += (targetProgress - abyssProgress) * 0.045;
 
       const cx = canvas.width / 2;
       const cy = canvas.height / 2;
-      const maxScatterDist = Math.max(canvas.width, canvas.height) * 0.85;
+      const screenDiagonal = Math.hypot(canvas.width, canvas.height) + 200;
+      const easedProgress = Math.pow(abyssProgress, 2); 
 
       stars.forEach(star => {
-        // Линейное смещение рассчитываем, только если звёзды почти не разлетелись
-        if (abyssProgress < 0.95) {
+        if (abyssProgress < 0.05) {
           star.x += star.vx;
           star.y += star.vy;
 
@@ -1123,26 +1121,24 @@
           star.twinkleSpeed = -star.twinkleSpeed;
         }
 
-        // Вектор разлёта от центра к краям
         const dx = star.x - cx;
         const dy = star.y - cy;
-        const dist = Math.hypot(dx, dy) || 1;
+        const dist = Math.hypot(dx, dy) || 0.001;
         const dirX = dx / dist;
         const dirY = dy / dist;
 
-        // Расчёт динамических координат с плавным разлётом
-        const scatterOffset = maxScatterDist * star.scatterSpeedMult * easedProgress;
+        const scatterOffset = screenDiagonal * star.scatterSpeedMult * easedProgress;
         const drawX = star.x + dirX * scatterOffset;
         const drawY = star.y + dirY * scatterOffset;
 
-        ctx.globalAlpha = star.alpha;
+        ctx.globalAlpha = Math.max(0, star.alpha * (1 - easedProgress * 0.6));
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
         ctx.arc(drawX, drawY, star.radius, 0, Math.PI * 2);
         ctx.fill();
       });
 
-      if (isCanvasTheme && Math.random() < 0.03 && shootingStars.length < 3) {
+      if (currentTheme === 'space' && Math.random() < 0.03 && shootingStars.length < 3) {
         spawnShootingStar();
       }
 
@@ -1152,7 +1148,7 @@
         s.y += s.dy;
         s.life -= s.decay;
 
-        if (s.life <= 0 || s.x > canvas.width + 100 || s.y > canvas.height + 100) {
+        if (s.life <= 0 || s.x > canvas.width + 100 || s.y > canvas.height + 100 || isAbyss) {
           shootingStars.splice(i, 1);
           continue;
         }
