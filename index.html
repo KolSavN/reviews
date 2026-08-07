@@ -142,8 +142,7 @@
       border-color: var(--accent);
     }
 
-    body[data-theme="space"] .theme-btn.active,
-    body[data-theme="abyss"] .theme-btn.active {
+    body[data-theme="space"] .theme-btn.active {
       box-shadow: 0 0 10px var(--accent);
     }
 
@@ -327,8 +326,7 @@
       background: var(--accent);
     }
 
-    body[data-theme="space"] .status-badge::before,
-    body[data-theme="abyss"] .status-badge::before {
+    body[data-theme="space"] .status-badge::before {
       box-shadow: 0 0 8px var(--accent);
     }
 
@@ -387,8 +385,7 @@
       border-color: var(--accent);
     }
 
-    body[data-theme="space"] .cat-btn.active,
-    body[data-theme="abyss"] .cat-btn.active {
+    body[data-theme="space"] .cat-btn.active {
       box-shadow: 0 0 12px var(--accent);
     }
 
@@ -585,9 +582,12 @@
       opacity: 1;
     }
 
-    body[data-theme="space"] .pyramid-card.pos-1,
-    body[data-theme="abyss"] .pyramid-card.pos-1 {
+    body[data-theme="space"] .pyramid-card.pos-1 {
       box-shadow: 0 0 15px rgba(0,0,0,0.4), 0 0 10px var(--accent);
+    }
+
+    body[data-theme="abyss"] .pyramid-card.pos-1 {
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
     }
 
     .pyramid-card.pos-1 .pyramid-cover-box {
@@ -1008,7 +1008,7 @@
   
   let stars = [];
   let shootingStars = [];
-  let abyssProgress = 0; // 0 = Cosmos (звёзды на месте), 1 = Abyss (звёзды разлетелись)
+  let abyssProgress = 0; // 0 = Cosmos (на месте), 1 = Abyss (разлетелись за экран)
 
   function resizeCanvas() {
     canvas.width = window.innerWidth;
@@ -1018,7 +1018,6 @@
 
   function initStars() {
     stars = [];
-    const maxDim = Math.max(canvas.width, canvas.height);
     for (let i = 0; i < 180; i++) {
       stars.push({
         x: Math.random() * canvas.width,
@@ -1029,7 +1028,7 @@
         twinkleSpeed: (Math.random() * 0.015 + 0.005) * (Math.random() > 0.5 ? 1 : -1),
         vx: (Math.random() - 0.5) * 0.15,
         vy: (Math.random() - 0.5) * 0.15,
-        scatterDist: maxDim * (0.7 + Math.random() * 0.8) // Индивидуальная дистанция разлёта
+        scatterSpeedMult: 0.8 + Math.random() * 0.6
       });
     }
   }
@@ -1089,49 +1088,54 @@
 
       const isAbyss = (currentTheme === 'abyss');
 
-      // Плавный прозрачности волн
+      // Прозрачность волн
       if (isAbyss) {
         if (waveAlpha < 1) waveAlpha = Math.min(1, waveAlpha + 0.025);
       } else {
         if (waveAlpha > 0) waveAlpha = Math.max(0, waveAlpha - 0.025);
       }
 
-      // Плавный прогресс разлёта звёзд
+      // Плавный прогресс разлёта (0 = на месте, 1 = разлетелись)
       const targetProgress = isAbyss ? 1 : 0;
-      abyssProgress += (targetProgress - abyssProgress) * 0.04;
+      abyssProgress += (targetProgress - abyssProgress) * 0.035;
+
+      // Квадратичное ускорение разлёта
+      const easedProgress = abyssProgress * abyssProgress;
 
       const cx = canvas.width / 2;
       const cy = canvas.height / 2;
+      const maxScatterDist = Math.max(canvas.width, canvas.height) * 0.85;
 
       stars.forEach(star => {
-        star.x += star.vx;
-        star.y += star.vy;
+        // Линейное смещение рассчитываем, только если звёзды почти не разлетелись
+        if (abyssProgress < 0.95) {
+          star.x += star.vx;
+          star.y += star.vy;
 
-        if (star.x < 0) star.x = canvas.width;
-        if (star.x > canvas.width) star.x = 0;
-        if (star.y < 0) star.y = canvas.height;
-        if (star.y > canvas.height) star.y = 0;
+          if (star.x < 0) star.x = canvas.width;
+          if (star.x > canvas.width) star.x = 0;
+          if (star.y < 0) star.y = canvas.height;
+          if (star.y > canvas.height) star.y = 0;
+        }
 
         star.alpha += star.twinkleSpeed;
         if (star.alpha > star.baseAlpha || star.alpha < 0.1) {
           star.twinkleSpeed = -star.twinkleSpeed;
         }
 
-        // Вектор разлёта от центра экрана
+        // Вектор разлёта от центра к краям
         const dx = star.x - cx;
         const dy = star.y - cy;
         const dist = Math.hypot(dx, dy) || 1;
         const dirX = dx / dist;
         const dirY = dy / dist;
 
-        // Текущее смещение звёзд
-        const drawX = star.x + dirX * (star.scatterDist * abyssProgress);
-        const drawY = star.y + dirY * (star.scatterDist * abyssProgress);
+        // Расчёт динамических координат с плавным разлётом
+        const scatterOffset = maxScatterDist * star.scatterSpeedMult * easedProgress;
+        const drawX = star.x + dirX * scatterOffset;
+        const drawY = star.y + dirY * scatterOffset;
 
-        // Плавное затухание при разлёте
-        const currentAlpha = Math.max(0, Math.min(1, star.alpha * (1 - abyssProgress * 0.75)));
-
-        ctx.globalAlpha = currentAlpha;
+        ctx.globalAlpha = star.alpha;
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
         ctx.arc(drawX, drawY, star.radius, 0, Math.PI * 2);
