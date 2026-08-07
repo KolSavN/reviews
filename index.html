@@ -52,8 +52,7 @@
       --input-bg: #ffffff;
     }
 
-    body[data-theme="space"],
-    body[data-theme="abyss"] {
+    body[data-theme="space"] {
       --bg: #070811;
       --card-bg: rgba(20, 24, 43, 0.75);
       --card-hover: rgba(29, 35, 61, 0.85);
@@ -65,6 +64,16 @@
         radial-gradient(circle at 20% 20%, var(--nebula-1) 0%, transparent 55%),
         radial-gradient(circle at 80% 80%, var(--nebula-2) 0%, transparent 55%);
       background-attachment: fixed;
+    }
+
+    body[data-theme="abyss"] {
+      --bg: #05070a;
+      --card-bg: rgba(15, 20, 30, 0.75);
+      --card-hover: rgba(22, 29, 42, 0.85);
+      --border: #1e2638;
+      --text-main: #f1f5f9;
+      --text-muted: #818cf8;
+      --input-bg: rgba(10, 14, 22, 0.8);
     }
 
     * {
@@ -142,8 +151,7 @@
       border-color: var(--accent);
     }
 
-    body[data-theme="space"] .theme-btn.active,
-    body[data-theme="abyss"] .theme-btn.active {
+    body[data-theme="space"] .theme-btn.active {
       box-shadow: 0 0 10px var(--accent);
     }
 
@@ -329,12 +337,11 @@
       background: var(--accent);
     }
 
-    body[data-theme="space"] .status-badge::before,
-    body[data-theme="abyss"] .status-badge::before {
+    body[data-theme="space"] .status-badge::before {
       box-shadow: 0 0 8px var(--accent);
     }
 
-    /* --- НАВИГАЦИЯ КАТЕГОРИЙ (КВАДРАТ 2x2 И HOME+OTHER СНИЗУ) --- */
+    /* --- НАВИГАЦИЯ КАТЕГОРИЙ (КВАДРАТ 2x2, СНИЗУ HOME, ЕЩЕ НИЖЕ OTHER) --- */
     .categories-nav {
       display: flex;
       flex-direction: column;
@@ -354,10 +361,11 @@
 
     .nav-bottom {
       display: flex;
+      flex-direction: column;
       gap: 10px;
       width: 100%;
       max-width: 380px;
-      justify-content: center;
+      align-items: center;
     }
 
     .cat-btn {
@@ -385,14 +393,14 @@
     }
 
     .cat-btn-home {
-      flex: 2;
+      width: 100%;
       padding: 12px 20px;
       font-size: 15px;
     }
 
     .cat-btn-sub {
-      flex: 1;
-      padding: 12px 14px;
+      width: 100%;
+      padding: 10px 14px;
       font-size: 13px;
       border-width: 1px;
       opacity: 0.85;
@@ -405,8 +413,7 @@
       opacity: 1;
     }
 
-    body[data-theme="space"] .cat-btn.active,
-    body[data-theme="abyss"] .cat-btn.active {
+    body[data-theme="space"] .cat-btn.active {
       box-shadow: 0 0 12px var(--accent);
     }
 
@@ -593,8 +600,7 @@
       opacity: 1;
     }
 
-    body[data-theme="space"] .pyramid-card.pos-1,
-    body[data-theme="abyss"] .pyramid-card.pos-1 {
+    body[data-theme="space"] .pyramid-card.pos-1 {
       box-shadow: 0 0 15px rgba(0,0,0,0.4), 0 0 10px var(--accent);
     }
 
@@ -914,7 +920,7 @@
       }
 
       .cat-btn-sub {
-        padding: 10px 10px;
+        padding: 8px 10px;
         font-size: 12px;
       }
 
@@ -1018,7 +1024,7 @@
     <span id="statusSortWrapper" style="display: none;">| Сортировка: <span class="status-badge" id="statusSortText">ТОП</span></span>
   </div>
 
-  <!-- КВАДРАТ ИЗ ОСНОВНЫХ КАТЕГОРИЙ + HOME И OTHER СНИЗУ -->
+  <!-- КВАДРАТ 2x2 -> НИЖЕ HOME -> ЕЩЕ НИЖЕ OTHER -->
   <div class="categories-nav" id="catNav">
     <div class="nav-square">
       <button class="cat-btn" onclick="switchCategory('Book')">Book</button>
